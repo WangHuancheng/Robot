@@ -1,23 +1,23 @@
 #include<MsTimer2.h>
 //编码器
-#define ENCODER_R1 2
-#define ENCODER_R2 4
-#define ENCODER_L1 3
-#define ENCODER_L2 5
+#define ENCODER_R1 3
+#define ENCODER_R2 11
+#define ENCODER_L1 2
+#define ENCODER_L2 4
 //驱动信号
 #define PWML_R 10 
-#define INL_R1 6
+#define INL_R1 8
 #define INL_R2 7
 #define PWML_L 9
-#define INL_L1 11
-#define INL_L2 12
+#define INL_L1 6
+#define INL_L2 5
 #define PERIOD 12.0
 
-float targetRv = 20;
-float targetLv = 20;
+float targetRv = 10;
+float targetLv = 10;
 
-volatile long encoderVal_R;//ENCODER
-volatile long encoderVal_L;
+volatile long encoderVal_R = 0;
+volatile long encoderVal_L = 0;
 
 volatile float velocityR;
 volatile float velocityL;
@@ -30,8 +30,11 @@ float ekL1 = 0;//last error
 float ekL2 = 0;//last last error
 
    
+
+
 void getEncoderR(void)
 {
+  //Serial.println("L");
    if(digitalRead(ENCODER_R1) == LOW)
   {
     if(digitalRead(ENCODER_R2) == LOW)
@@ -45,7 +48,7 @@ void getEncoderR(void)
   }
   else
   {
-    if(digitalRead(ENCODER_R2) == LOW)
+    if(digitalRead(ENCODER_L2) == LOW)
     {
       encoderVal_R++;
     }
@@ -58,6 +61,7 @@ void getEncoderR(void)
 
 void getEncoderL(void)
 {
+  //Serial.println("L");
    if(digitalRead(ENCODER_L1) == LOW)
   {
     if(digitalRead(ENCODER_L2) == LOW)
@@ -85,6 +89,7 @@ void getEncoderL(void)
 
 int pidControllerR(float targetRv,float currentRv)
 {
+  
     float u;
     float output;
     float q0,q1,q2;
@@ -92,6 +97,7 @@ int pidControllerR(float targetRv,float currentRv)
     float ti = 10;//积分时间
     float td = 5;//微分事件
     float ek = targetRv - currentRv;
+    //Serial.println(ek);
     
     q0 = k*(1 + PERIOD/ti + td/PERIOD);
     q1 = -k*(1 + 2*td/PERIOD);
@@ -100,6 +106,9 @@ int pidControllerR(float targetRv,float currentRv)
 
     u = q0*ek + q1*ekR1 + q2*ekR2;
     output = ukR+u;
+        //Serial.println(output);
+
+
     
     if (output > 255)
         output = 255;
@@ -123,6 +132,7 @@ int pidControllerL(float targetLv,float currentLv)
     float ti = 10;//积分时间
     float td = 5;//微分事件
     float ek = targetLv - currentLv;
+
     
     q0 = k*(1 + PERIOD/ti + td/PERIOD);
     q1 = -k*(1 + 2*td/PERIOD);
@@ -131,7 +141,8 @@ int pidControllerL(float targetLv,float currentLv)
 
     u = q0*ek + q1*ekL1 + q2*ekL2;
     output = ukL+u;
-    
+     Serial.println(output);
+       
     if (output > 255)
         output = 255;
     
@@ -144,16 +155,23 @@ int pidControllerL(float targetLv,float currentLv)
     return (int)output;
 }
 
-void control()
+void control(void)
 {
   //测速 PID
+    
+    
   velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
+    Serial.println(encoderVal_R);
+
   encoderVal_R = 0;
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_L = 0;
+ 
 
   int dutyCycleR = pidControllerR(targetRv,velocityR);
   int dutyCycleL = pidControllerL(targetLv,velocityL);
+  //Serial.println(dutyCycleR);
+
 
   if(dutyCycleR > 0) //control Right wheel
   {
@@ -164,16 +182,16 @@ void control()
   }
   else
   {
-      digitalWrite(INL_R1,LOW);
-      digitalWrite(INL_R2,HIGH);
+      digitalWrite(INL_R1,HIGH);
+      digitalWrite(INL_R2,LOW);
       analogWrite(PWML_R,abs(dutyCycleR));
   }
 
     if(dutyCycleL > 0) //control Right wheel
   {
       
-      digitalWrite(INL_L1,LOW);
-      digitalWrite(INL_L2,HIGH);
+      digitalWrite(INL_L1,HIGH);
+      digitalWrite(INL_L2,LOW);
       analogWrite(PWML_L,dutyCycleL);
   }
   else
@@ -200,8 +218,8 @@ void setup()
     
     Serial.begin(9600);
 
-    attachInterrupt(0,getEncoderR,CHANGE);
-    attachInterrupt(1,getEncoderL,CHANGE);
+    attachInterrupt(1,getEncoderR,CHANGE);
+    attachInterrupt(0,getEncoderL,CHANGE);
     MsTimer2::set(PERIOD,control);
     MsTimer2::start();
 }
@@ -212,7 +230,7 @@ void loop()
 // analogWrite(PWML_B,255);
 //digitalWrite(INLA1,HIGH);
 //digitalWrite(INLA2,LOW);
-  Serial.print(velocityR);
-  Serial.print("\r\n");
+  //Serial.println(velocityL);
+  //Serial.print("\r\n");
   
 }
