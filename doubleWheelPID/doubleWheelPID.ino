@@ -1,0 +1,218 @@
+#include<MsTimer2.h>
+//编码器
+#define ENCODER_R1 2
+#define ENCODER_R2 4
+#define ENCODER_L1 3
+#define ENCODER_L2 5
+//驱动信号
+#define PWML_R 10 
+#define INL_R1 6
+#define INL_R2 7
+#define PWML_L 9
+#define INL_L1 11
+#define INL_L2 12
+#define PERIOD 12.0
+
+float targetRv = 20;
+float targetLv = 20;
+
+volatile long encoderVal_R;//ENCODER
+volatile long encoderVal_L;
+
+volatile float velocityR;
+volatile float velocityL;
+float ukR = 0;
+float ukL = 0;
+
+float ekR1 = 0;//last error
+float ekR2 = 0;//last last error
+float ekL1 = 0;//last error
+float ekL2 = 0;//last last error
+
+   
+void getEncoderR(void)
+{
+   if(digitalRead(ENCODER_R1) == LOW)
+  {
+    if(digitalRead(ENCODER_R2) == LOW)
+    {
+      encoderVal_R--;
+    }
+      else
+    {
+      encoderVal_R++;
+    }
+  }
+  else
+  {
+    if(digitalRead(ENCODER_R2) == LOW)
+    {
+      encoderVal_R++;
+    }
+      else
+    {
+      encoderVal_R--;
+    }
+  }
+}
+
+void getEncoderL(void)
+{
+   if(digitalRead(ENCODER_L1) == LOW)
+  {
+    if(digitalRead(ENCODER_L2) == LOW)
+    {
+      encoderVal_L--;
+    }
+      else
+    {
+      encoderVal_L++;
+    }
+  }
+  else
+  {
+    if(digitalRead(ENCODER_L2) == LOW)
+    {
+      encoderVal_L++;
+    }
+      else
+    {
+      encoderVal_L--;
+    }
+  }
+}
+
+
+int pidControllerR(float targetRv,float currentRv)
+{
+    float u;
+    float output;
+    float q0,q1,q2;
+    float k = 25;
+    float ti = 10;//积分时间
+    float td = 5;//微分事件
+    float ek = targetRv - currentRv;
+    
+    q0 = k*(1 + PERIOD/ti + td/PERIOD);
+    q1 = -k*(1 + 2*td/PERIOD);
+    q2 = k*td/PERIOD;
+      
+
+    u = q0*ek + q1*ekR1 + q2*ekR2;
+    output = ukR+u;
+    
+    if (output > 255)
+        output = 255;
+    
+    if (output < -255)
+        output = -255;
+    
+    ukR = output;
+    ekR2 = ekR1;
+    ekR1 = ek;
+    return (int)output;
+
+}
+
+int pidControllerL(float targetLv,float currentLv)
+{
+    float u;
+    float output;
+    float q0,q1,q2;
+    float k = 25;
+    float ti = 10;//积分时间
+    float td = 5;//微分事件
+    float ek = targetLv - currentLv;
+    
+    q0 = k*(1 + PERIOD/ti + td/PERIOD);
+    q1 = -k*(1 + 2*td/PERIOD);
+    q2 = k*td/PERIOD;
+      
+
+    u = q0*ek + q1*ekL1 + q2*ekL2;
+    output = ukL+u;
+    
+    if (output > 255)
+        output = 255;
+    
+    if (output < -255)
+        output = -255;
+    
+    ukL = output;
+    ekL2 = ekL1;
+    ekL1 = ek;
+    return (int)output;
+}
+
+void control()
+{
+  //测速 PID
+  velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
+  encoderVal_R = 0;
+  velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
+  encoderVal_L = 0;
+
+  int dutyCycleR = pidControllerR(targetRv,velocityR);
+  int dutyCycleL = pidControllerL(targetLv,velocityL);
+
+  if(dutyCycleR > 0) //control Right wheel
+  {
+      
+      digitalWrite(INL_R1,LOW);
+      digitalWrite(INL_R2,HIGH);
+      analogWrite(PWML_R,dutyCycleR);
+  }
+  else
+  {
+      digitalWrite(INL_R1,LOW);
+      digitalWrite(INL_R2,HIGH);
+      analogWrite(PWML_R,abs(dutyCycleR));
+  }
+
+    if(dutyCycleL > 0) //control Right wheel
+  {
+      
+      digitalWrite(INL_L1,LOW);
+      digitalWrite(INL_L2,HIGH);
+      analogWrite(PWML_L,dutyCycleL);
+  }
+  else
+  {
+      digitalWrite(INL_L1,LOW);
+      digitalWrite(INL_L2,HIGH);
+      analogWrite(PWML_L,abs(dutyCycleL));
+  }
+}
+void setup() 
+{
+    TCCR1B = TCCR1B & B11111000 | B00000001;
+    pinMode(INL_L1,OUTPUT);
+    pinMode(INL_L2,OUTPUT);
+    pinMode(PWML_L,OUTPUT);
+    pinMode(INL_R1,OUTPUT);
+    pinMode(INL_R2,OUTPUT);
+    pinMode(PWML_R,OUTPUT);
+
+    pinMode(ENCODER_R1,INPUT);
+    pinMode(ENCODER_R2,INPUT);
+    pinMode(ENCODER_L1,INPUT);
+    pinMode(ENCODER_L2,INPUT);
+    
+    Serial.begin(9600);
+
+    attachInterrupt(0,getEncoderR,CHANGE);
+    attachInterrupt(1,getEncoderL,CHANGE);
+    MsTimer2::set(PERIOD,control);
+    MsTimer2::start();
+}
+
+void loop() 
+{
+  // put your main code here, to run repeatedly:
+// analogWrite(PWML_B,255);
+//digitalWrite(INLA1,HIGH);
+//digitalWrite(INLA2,LOW);
+  Serial.print(velocityR);
+  Serial.print("\r\n");
+  
+}
