@@ -14,7 +14,7 @@
 #define PERIOD 12.0
 
 float targetRv = 10;
-float targetLv = 10;
+float targetLv = 0;
 
 volatile long encoderVal_R = 0;
 volatile long encoderVal_L = 0;
@@ -141,7 +141,7 @@ int pidControllerL(float targetLv,float currentLv)
 
     u = q0*ek + q1*ekL1 + q2*ekL2;
     output = ukL+u;
-     Serial.println(output);
+     //Serial.println(output);
        
     if (output > 255)
         output = 255;
@@ -161,7 +161,8 @@ void control(void)
     
     
   velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
-    Serial.println(encoderVal_R);
+  Serial.print("encoderVal_L:");
+  Serial.println(encoderVal_R);
 
   encoderVal_R = 0;
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
@@ -170,7 +171,8 @@ void control(void)
 
   int dutyCycleR = pidControllerR(targetRv,velocityR);
   int dutyCycleL = pidControllerL(targetLv,velocityL);
-  //Serial.println(dutyCycleR);
+  Serial.print("dutyCycle:");
+  Serial.println(dutyCycleR);
 
 
   if(dutyCycleR > 0) //control Right wheel
@@ -218,8 +220,8 @@ void setup()
     
     Serial.begin(9600);
 
-    attachInterrupt(1,getEncoderR,CHANGE);
-    attachInterrupt(0,getEncoderL,CHANGE);
+    attachInterrupt(ENCODER_R1,getEncoderR,CHANGE);//
+    attachInterrupt(ENCODER_L1 - 2,getEncoderL,CHANGE);//中断通道0对应port 2，1对应port3
     MsTimer2::set(PERIOD,control);
     MsTimer2::start();
 }
@@ -230,7 +232,10 @@ void loop()
 // analogWrite(PWML_B,255);
 //digitalWrite(INLA1,HIGH);
 //digitalWrite(INLA2,LOW);
-  //Serial.println(velocityL);
-  //Serial.print("\r\n");
+  //Serial.print("left v: ");
+  //Serial.print(velocityL);
+  //Serial.print(",");
+  //Serial.print("right v");
+  //Serial.println(velocityR);
   
 }
