@@ -1,23 +1,27 @@
 #include<MsTimer2.h>
 //编码器
 #define ENCODER_R1 3
-#define ENCODER_R2 11
+#define ENCODER_R2 13
 #define ENCODER_L1 2
 #define ENCODER_L2 4
 //驱动信号
 #define PWML_R 10 
-#define INL_R1 8
-#define INL_R2 7
+#define INL_R1 7
+#define INL_R2 8
 #define PWML_L 9
 #define INL_L1 6
 #define INL_L2 5
 #define PERIOD 12.0
 
 float targetRv = 10;
-float targetLv = 0;
+float targetLv = 10;
 
 volatile long encoderVal_R = 0;
 volatile long encoderVal_L = 0;
+
+volatile int encodertime_L = 0;
+volatile int encodertime_R = 0;
+
 
 volatile float velocityR;
 volatile float velocityL;
@@ -34,7 +38,8 @@ float ekL2 = 0;//last last error
 
 void getEncoderR(void)
 {
-  //Serial.println("L");
+  //Serial.println("in func getEncoderR!");
+  encodertime_R++;
    if(digitalRead(ENCODER_R1) == LOW)
   {
     if(digitalRead(ENCODER_R2) == LOW)
@@ -62,6 +67,7 @@ void getEncoderR(void)
 void getEncoderL(void)
 {
   //Serial.println("L");
+  encodertime_L++;
    if(digitalRead(ENCODER_L1) == LOW)
   {
     if(digitalRead(ENCODER_L2) == LOW)
@@ -158,21 +164,20 @@ int pidControllerL(float targetLv,float currentLv)
 void control(void)
 {
   //测速 PID
-    
-    
-  velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
-  Serial.print("encoderVal_L:");
-  Serial.println(encoderVal_R);
 
+    
+    
+  velocityR = -(encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_R = 0;
+
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_L = 0;
  
 
   int dutyCycleR = pidControllerR(targetRv,velocityR);
   int dutyCycleL = pidControllerL(targetLv,velocityL);
-  Serial.print("dutyCycle:");
-  Serial.println(dutyCycleR);
+  //Serial.print("dutyCycle:");
+  //Serial.println(dutyCycleR);
 
 
   if(dutyCycleR > 0) //control Right wheel
@@ -220,7 +225,7 @@ void setup()
     
     Serial.begin(9600);
 
-    attachInterrupt(ENCODER_R1,getEncoderR,CHANGE);//
+    attachInterrupt(ENCODER_R1 - 2,getEncoderR,CHANGE);//
     attachInterrupt(ENCODER_L1 - 2,getEncoderL,CHANGE);//中断通道0对应port 2，1对应port3
     MsTimer2::set(PERIOD,control);
     MsTimer2::start();
@@ -229,13 +234,13 @@ void setup()
 void loop() 
 {
   // put your main code here, to run repeatedly:
-// analogWrite(PWML_B,255);
-//digitalWrite(INLA1,HIGH);
-//digitalWrite(INLA2,LOW);
-  //Serial.print("left v: ");
-  //Serial.print(velocityL);
+  // analogWrite(PWML_B,255);
+  //digitalWrite(INLA1,HIGH);
+  //digitalWrite(INLA2,LOW);
+  Serial.print("left v: ");
+  Serial.println(velocityL);
   //Serial.print(",");
-  //Serial.print("right v");
-  //Serial.println(velocityR);
+  Serial.print("right v");
+  Serial.println(velocityR);
   
 }
