@@ -13,7 +13,7 @@
 #define INL_L2 5
 #define PERIOD 12.0
 
-float targetRv = 10;
+float targetRv = 0;
 float targetLv = 10;
 
 volatile long encoderVal_R = 0;
@@ -237,10 +237,10 @@ void loop()
   // analogWrite(PWML_B,255);
   //digitalWrite(INLA1,HIGH);
   //digitalWrite(INLA2,LOW);
-  Serial.print("left v: ");
-  Serial.println(velocityL);
+  //Serial.print("left v: ");
+  Serial.print(velocityL);
   //Serial.print(",");
-  Serial.print("right v");
-  Serial.println(velocityR);
+  //Serial.print("right v");
+  //Serial.println(velocityR);
   
 }
