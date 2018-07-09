@@ -14,7 +14,7 @@
 #define PERIOD 12.0
 
 float targetRv = 0;
-float targetLv = 10;
+float targetLv = 30;
 
 volatile long encoderVal_R = 0;
 volatile long encoderVal_L = 0;
@@ -134,9 +134,9 @@ int pidControllerL(float targetLv,float currentLv)
     float u;
     float output;
     float q0,q1,q2;
-    float k = 25;
+    float k = 100;
     float ti = 10;//积分时间
-    float td = 5;//微分事件
+    float td = 0;//微分事件
     float ek = targetLv - currentLv;
 
     
