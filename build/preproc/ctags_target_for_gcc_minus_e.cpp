@@ -159,10 +159,15 @@ int pidControllerL(float targetLv,float currentLv)
 void control(void)
 {
   //测速 PID
+  Serial.print("encodertime_L:");
+  Serial.print(encodertime_L);
+  Serial.print("\tencodertime_R:");
+  Serial.println(encodertime_R);
 
+  encodertime_L = 0;
+  encodertime_R = 0;
 
-
-  velocityR = -(encoderVal_R*2.0)*3.1415*2.0*(1000/12.0)/780;
+  velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/12.0)/780;
   encoderVal_R = 0;
 
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/12.0)/780;
@@ -178,39 +183,39 @@ void control(void)
   if(dutyCycleR > 0) //control Right wheel
   {
 
-      digitalWrite(6,0x0);
-      digitalWrite(5,0x1);
+      digitalWrite(A2,0x0);
+      digitalWrite(A1,0x1);
       analogWrite(10,dutyCycleR);
   }
   else
   {
-      digitalWrite(6,0x1);
-      digitalWrite(5,0x0);
+      digitalWrite(A2,0x1);
+      digitalWrite(A1,0x0);
       analogWrite(10,((dutyCycleR)>0?(dutyCycleR):-(dutyCycleR)));
   }
 
-    if(dutyCycleL > 0) //control Right wheel
+    if(dutyCycleL > 0) //control left wheel
   {
 
-      digitalWrite(7,0x1);
-      digitalWrite(8,0x0);
+      digitalWrite(A4,0x1);
+      digitalWrite(A5,0x0);
       analogWrite(9,dutyCycleL);
   }
   else
   {
-      digitalWrite(7,0x0);
-      digitalWrite(8,0x1);
+      digitalWrite(A4,0x0);
+      digitalWrite(A5,0x1);
       analogWrite(9,((dutyCycleL)>0?(dutyCycleL):-(dutyCycleL)));
   }
 }
 void setup()
 {
     (*(volatile uint8_t *)(0x81)) = (*(volatile uint8_t *)(0x81)) & 248 | 1;
-    pinMode(7,0x1);
-    pinMode(8,0x1);
+    pinMode(A4,0x1);
+    pinMode(A5,0x1);
     pinMode(9,0x1);
-    pinMode(6,0x1);
-    pinMode(5,0x1);
+    pinMode(A2,0x1);
+    pinMode(A1,0x1);
     pinMode(10,0x1);
 
     pinMode(2,0x0);
@@ -232,10 +237,10 @@ void loop()
   // analogWrite(PWML_B,255);
   //digitalWrite(INLA1,HIGH);
   //digitalWrite(INLA2,LOW);
-  Serial.print("left v: ");
-  Serial.print(velocityL);
-  Serial.print(",");
-  Serial.print("right v");
-  Serial.println(velocityR);
+  //Serial.print("left v: ");
+  //Serial.print(velocityL);
+  //Serial.print(",");
+  //Serial.print("right v");
+  //Serial.println(velocityR);
 
 }

@@ -9,11 +9,11 @@
 #define ENCODER_L2 12
 //驱动信号
 #define PWML_R 10 
-#define INL_R1 6
-#define INL_R2 5
+#define INL_R1 A2
+#define INL_R2 A1
 #define PWML_L 9
-#define INL_L1 7
-#define INL_L2 8
+#define INL_L1 A4
+#define INL_L2 A5
 #define PERIOD 12.0
 
 float targetRv = 20;
@@ -49,9 +49,9 @@ int pidControllerR(float targetRv,float currentRv);
 int pidControllerL(float targetLv,float currentLv);
 #line 164 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
 void control(void);
-#line 211 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+#line 216 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
 void setup();
-#line 234 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+#line 239 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
 void loop();
 #line 39 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
 void getEncoderR(void)
@@ -182,10 +182,15 @@ int pidControllerL(float targetLv,float currentLv)
 void control(void)
 {
   //测速 PID
+  Serial.print("encodertime_L:");
+  Serial.print(encodertime_L);
+  Serial.print("\tencodertime_R:");
+  Serial.println(encodertime_R);
 
-    
-    
-  velocityR = -(encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
+  encodertime_L = 0;
+  encodertime_R = 0;
+
+  velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_R = 0;
 
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
@@ -212,7 +217,7 @@ void control(void)
       analogWrite(PWML_R,abs(dutyCycleR));
   }
 
-    if(dutyCycleL > 0) //control Right wheel
+    if(dutyCycleL > 0) //control left wheel
   {
       
       digitalWrite(INL_L1,HIGH);
@@ -255,11 +260,11 @@ void loop()
   // analogWrite(PWML_B,255);
   //digitalWrite(INLA1,HIGH);
   //digitalWrite(INLA2,LOW);
-  Serial.print("left v: ");
-  Serial.print(velocityL);
-  Serial.print(",");
-  Serial.print("right v");
-  Serial.println(velocityR);
+  //Serial.print("left v: ");
+  //Serial.print(velocityL);
+  //Serial.print(",");
+  //Serial.print("right v");
+  //Serial.println(velocityR);
   
 }
 
