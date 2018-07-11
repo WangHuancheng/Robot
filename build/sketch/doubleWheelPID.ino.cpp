@@ -1,3 +1,6 @@
+#include <Arduino.h>
+#line 1 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+#line 1 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
 #include<MsTimer2.h>
 //编码器
 #define ENCODER_R1 2
@@ -36,6 +39,21 @@ float ekL2 = 0;//last last error
    
 
 
+#line 39 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+void getEncoderR(void);
+#line 67 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+void getEncoderL(void);
+#line 96 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+int pidControllerR(float targetRv,float currentRv);
+#line 132 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+int pidControllerL(float targetLv,float currentLv);
+#line 164 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+void control(void);
+#line 211 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+void setup();
+#line 234 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+void loop();
+#line 39 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
 void getEncoderR(void)
 {
   //Serial.println("in func getEncoderR!");
@@ -244,3 +262,4 @@ void loop()
   Serial.println(velocityR);
   
 }
+

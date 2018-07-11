@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "D:\\Arduino\\hardware\\arduino\\avr\\cores\\arduino",
+                "${workspaceFolder}/**",
+                "D:\\Arduino\\libraries",
+                "D:\\Arduino project\\libraries"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "D:\\APP\\GCC\\bin\\gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "limitSymbolsToIncludedHeaders": false,
+                "path": [
+                    "D:\\Arduino\\hardware\\arduino\\avr\\cores\\arduino"
+                ]
+            }
+        }
+    ],
+    "version": 4
+}
