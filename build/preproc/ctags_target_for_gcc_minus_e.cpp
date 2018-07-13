@@ -8,7 +8,7 @@
 
 //驱动信号
 # 16 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-float targetRv = 0;
+float targetRv = 20;
 float targetLv = 20;
 
 volatile long encoderVal_R = 0;
@@ -94,8 +94,8 @@ int pidControllerR(float targetRv,float currentRv)
     float u;
     float output;
     float q0,q1,q2;
-    float k = 25;
-    float ti = 10;//积分时间
+    float k = 12;
+    float ti = 80;//积分时间
     float td = 5;//微分事件
     float ek = targetRv - currentRv;
     //Serial.println(ek);
@@ -129,9 +129,9 @@ int pidControllerL(float targetLv,float currentLv)
     float u;
     float output;
     float q0,q1,q2;
-    float k = 25;
-    float ti = 0;//积分时间
-    float td = 0;//微分事件
+    float k = 10;
+    float ti = 80;//积分时间
+    float td = 5;//微分时间
     float ek = targetLv - currentLv;
 
 
@@ -238,9 +238,9 @@ void loop()
   //digitalWrite(INLA1,HIGH);
   //digitalWrite(INLA2,LOW);
   //Serial.print("left v: ");
-  Serial.println(velocityL);
+  //Serial.print(velocityL);
   //Serial.print(",");
   //Serial.print("right v");
-  //Serial.println(velocityR);
+  Serial.println(velocityR);
 
 }
