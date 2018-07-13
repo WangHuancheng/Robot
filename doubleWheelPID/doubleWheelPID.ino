@@ -134,9 +134,9 @@ int pidControllerL(float targetLv,float currentLv)
     float u;
     float output;
     float q0,q1,q2;
-    float k = 25;
-    float ti = 0;//积分时间
-    float td = 0;//微分事件
+    float k = 10 ;
+    float ti = 5;//积分时间
+    float td = 5;//微分事件
     float ek = targetLv - currentLv;
 
     
