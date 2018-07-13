@@ -3,20 +3,20 @@
 #line 1 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
 #include<MsTimer2.h>
 //编码器
-#define ENCODER_R1 2
-#define ENCODER_R2 13
-#define ENCODER_L1 3
-#define ENCODER_L2 8
+#define ENCODER_R1 3
+#define ENCODER_R2 4
+#define ENCODER_L1 2
+#define ENCODER_L2 5
 //驱动信号
 #define PWML_R 10 
 #define INL_R1 A2
 #define INL_R2 A1
 #define PWML_L 9
 #define INL_L1 A4
-#define INL_L2 A5
+#define INL_L2 A3
 #define PERIOD 12.0
 
-float targetRv = 20;
+float targetRv = 0;
 float targetLv = 20;
 
 volatile long encoderVal_R = 0;
@@ -152,8 +152,8 @@ int pidControllerL(float targetLv,float currentLv)
     float u;
     float output;
     float q0,q1,q2;
-    float k = 100;
-    float ti = 10;//积分时间
+    float k = 25;
+    float ti = 0;//积分时间
     float td = 0;//微分事件
     float ek = targetLv - currentLv;
 
@@ -185,7 +185,7 @@ void control(void)
   //Serial.print("encodertime_L:");
   //Serial.print(encodertime_L);
   //Serial.print("\tencodertime_R:");
-  Serial.println(encoderVal_L);
+  //Serial.println(encoderVal_L);
 
   encodertime_L = 0;
   encodertime_R = 0;
@@ -261,7 +261,7 @@ void loop()
   //digitalWrite(INLA1,HIGH);
   //digitalWrite(INLA2,LOW);
   //Serial.print("left v: ");
-  //Serial.print(velocityL);
+  Serial.println(velocityL);
   //Serial.print(",");
   //Serial.print("right v");
   //Serial.println(velocityR);

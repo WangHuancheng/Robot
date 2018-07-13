@@ -8,7 +8,7 @@
 
 //驱动信号
 # 16 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-float targetRv = 20;
+float targetRv = 0;
 float targetLv = 20;
 
 volatile long encoderVal_R = 0;
@@ -35,9 +35,9 @@ void getEncoderR(void)
 {
   //Serial.println("in func getEncoderR!");
   encodertime_R++;
-   if(digitalRead(2) == 0x0)
+   if(digitalRead(3) == 0x0)
   {
-    if(digitalRead(13) == 0x0)
+    if(digitalRead(4) == 0x0)
     {
       encoderVal_R--;
     }
@@ -48,7 +48,7 @@ void getEncoderR(void)
   }
   else
   {
-    if(digitalRead(8) == 0x0)
+    if(digitalRead(5) == 0x0)
     {
       encoderVal_R++;
     }
@@ -63,9 +63,9 @@ void getEncoderL(void)
 {
   //Serial.println("L");
   encodertime_L++;
-   if(digitalRead(3) == 0x0)
+   if(digitalRead(2) == 0x0)
   {
-    if(digitalRead(8) == 0x0)
+    if(digitalRead(5) == 0x0)
     {
       encoderVal_L--;
     }
@@ -76,7 +76,7 @@ void getEncoderL(void)
   }
   else
   {
-    if(digitalRead(8) == 0x0)
+    if(digitalRead(5) == 0x0)
     {
       encoderVal_L++;
     }
@@ -129,8 +129,8 @@ int pidControllerL(float targetLv,float currentLv)
     float u;
     float output;
     float q0,q1,q2;
-    float k = 100;
-    float ti = 10;//积分时间
+    float k = 25;
+    float ti = 0;//积分时间
     float td = 0;//微分事件
     float ek = targetLv - currentLv;
 
@@ -162,7 +162,7 @@ void control(void)
   //Serial.print("encodertime_L:");
   //Serial.print(encodertime_L);
   //Serial.print("\tencodertime_R:");
-  Serial.println(encoderVal_L);
+  //Serial.println(encoderVal_L);
 
   encodertime_L = 0;
   encodertime_R = 0;
@@ -198,13 +198,13 @@ void control(void)
   {
 
       digitalWrite(A4,0x1);
-      digitalWrite(A5,0x0);
+      digitalWrite(A3,0x0);
       analogWrite(9,dutyCycleL);
   }
   else
   {
       digitalWrite(A4,0x0);
-      digitalWrite(A5,0x1);
+      digitalWrite(A3,0x1);
       analogWrite(9,((dutyCycleL)>0?(dutyCycleL):-(dutyCycleL)));
   }
 }
@@ -212,21 +212,21 @@ void setup()
 {
     (*(volatile uint8_t *)(0x81)) = (*(volatile uint8_t *)(0x81)) & 248 | 1;
     pinMode(A4,0x1);
-    pinMode(A5,0x1);
+    pinMode(A3,0x1);
     pinMode(9,0x1);
     pinMode(A2,0x1);
     pinMode(A1,0x1);
     pinMode(10,0x1);
 
-    pinMode(2,0x0);
-    pinMode(13,0x0);
     pinMode(3,0x0);
-    pinMode(8,0x0);
+    pinMode(4,0x0);
+    pinMode(2,0x0);
+    pinMode(5,0x0);
 
     Serial.begin(9600);
 
-    attachInterrupt(2 - 2,getEncoderR,1);//
-    attachInterrupt(3 - 2,getEncoderL,1);//中断通道0对应port 2，1对应port3
+    attachInterrupt(3 - 2,getEncoderR,1);//
+    attachInterrupt(2 - 2,getEncoderL,1);//中断通道0对应port 2，1对应port3
     MsTimer2::set(12.0,control);
     MsTimer2::start();
 }
@@ -238,7 +238,7 @@ void loop()
   //digitalWrite(INLA1,HIGH);
   //digitalWrite(INLA2,LOW);
   //Serial.print("left v: ");
-  //Serial.print(velocityL);
+  Serial.println(velocityL);
   //Serial.print(",");
   //Serial.print("right v");
   //Serial.println(velocityR);
