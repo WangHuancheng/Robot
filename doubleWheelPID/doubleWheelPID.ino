@@ -1,16 +1,16 @@
 #include<MsTimer2.h>
 //编码器
-#define ENCODER_R1 2
-#define ENCODER_R2 11
-#define ENCODER_L1 3
-#define ENCODER_L2 12
+#define ENCODER_R1 3
+#define ENCODER_R2 4
+#define ENCODER_L1 2
+#define ENCODER_L2 5
 //驱动信号
 #define PWML_R 10 
 #define INL_R1 A2
 #define INL_R2 A1
 #define PWML_L 9
 #define INL_L1 A4
-#define INL_L2 A5
+#define INL_L2 A3
 #define PERIOD 12.0
 
 float targetRv = 20;
@@ -164,10 +164,10 @@ int pidControllerL(float targetLv,float currentLv)
 void control(void)
 {
   //测速 PID
-  Serial.print("encodertime_L:");
-  Serial.print(encodertime_L);
-  Serial.print("\tencodertime_R:");
-  Serial.println(encodertime_R);
+  //Serial.print("encodertime_L:");
+  //Serial.print(encodertime_L);
+  //Serial.print("\tencodertime_R:");
+  Serial.println(encoderVal_L);
 
   encodertime_L = 0;
   encodertime_R = 0;

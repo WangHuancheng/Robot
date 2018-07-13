@@ -1,23 +1,21 @@
-#include <Arduino.h>
-#line 1 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-#line 1 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
 #include<MsTimer2.h>
-//编码器
-#define ENCODER_R1 2
-#define ENCODER_R2 13
-#define ENCODER_L1 3
-#define ENCODER_L2 8
-//驱动信号
+//缂栫爜鍣??
+#define ENCODER_R1 3
+#define ENCODER_R2 4
+#define ENCODER_L1 2
+#define ENCODER_L2 5
+//椹卞姩淇″彿
 #define PWML_R 10 
 #define INL_R1 A2
 #define INL_R2 A1
 #define PWML_L 9
 #define INL_L1 A4
-#define INL_L2 A5
+#define INL_L1 A4
+#define INL_L2 A3
 #define PERIOD 12.0
 
 float targetRv = 20;
-float targetLv = 20;
+float targetLv =20;
 
 volatile long encoderVal_R = 0;
 volatile long encoderVal_L = 0;
@@ -39,21 +37,6 @@ float ekL2 = 0;//last last error
    
 
 
-#line 39 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-void getEncoderR(void);
-#line 67 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-void getEncoderL(void);
-#line 96 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-int pidControllerR(float targetRv,float currentRv);
-#line 132 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-int pidControllerL(float targetLv,float currentLv);
-#line 164 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-void control(void);
-#line 216 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-void setup();
-#line 239 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-void loop();
-#line 39 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
 void getEncoderR(void)
 {
   //Serial.println("in func getEncoderR!");
@@ -118,8 +101,8 @@ int pidControllerR(float targetRv,float currentRv)
     float output;
     float q0,q1,q2;
     float k = 25;
-    float ti = 10;//积分时间
-    float td = 5;//微分事件
+    float ti = 10;//绉垎鏃堕棿
+    float td = 5;//寰垎浜嬩欢
     float ek = targetRv - currentRv;
     //Serial.println(ek);
     
@@ -152,9 +135,9 @@ int pidControllerL(float targetLv,float currentLv)
     float u;
     float output;
     float q0,q1,q2;
-    float k = 100;
-    float ti = 10;//积分时间
-    float td = 0;//微分事件
+    float k = 13;
+    float ti = 10;//绉垎鏃堕棿
+    float td = 50;//寰垎浜嬩欢
     float ek = targetLv - currentLv;
 
     
@@ -181,15 +164,7 @@ int pidControllerL(float targetLv,float currentLv)
 
 void control(void)
 {
-  //测速 PID
-  //Serial.print("encodertime_L:");
-  //Serial.print(encodertime_L);
-  //Serial.print("\tencodertime_R:");
-  Serial.println(encoderVal_L);
-
-  encodertime_L = 0;
-  encodertime_R = 0;
-
+  //娴嬮?? PID
   velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_R = 0;
 
@@ -217,7 +192,7 @@ void control(void)
       analogWrite(PWML_R,abs(dutyCycleR));
   }
 
-    if(dutyCycleL > 0) //control left wheel
+    if(dutyCycleL > 0) //control Right wheel
   {
       
       digitalWrite(INL_L1,HIGH);
@@ -246,12 +221,14 @@ void setup()
     pinMode(ENCODER_L1,INPUT);
     pinMode(ENCODER_L2,INPUT);
     
-    Serial.begin(9600);
+    
 
     attachInterrupt(ENCODER_R1 - 2,getEncoderR,CHANGE);//
-    attachInterrupt(ENCODER_L1 - 2,getEncoderL,CHANGE);//中断通道0对应port 2，1对应port3
+    attachInterrupt(ENCODER_L1 - 2,getEncoderL,CHANGE);//涓柇閫氶亾0瀵瑰簲port 2锛?1瀵瑰簲port3
     MsTimer2::set(PERIOD,control);
     MsTimer2::start();
+    Serial.begin(9600);
+    
 }
 
 void loop() 
@@ -260,11 +237,14 @@ void loop()
   // analogWrite(PWML_B,255);
   //digitalWrite(INLA1,HIGH);
   //digitalWrite(INLA2,LOW);
-  //Serial.print("left v: ");
-  //Serial.print(velocityL);
+  //Serial.print("velocity_l: ");
+  Serial.println(velocityL);
+  //Serial.print("\r\n");
   //Serial.print(",");
+  //Serial.println(velocityR);
+  //Serial.print("\r\n");
   //Serial.print("right v");
   //Serial.println(velocityR);
-  
 }
+
 

@@ -37,7 +37,7 @@ void getEncoderR(void)
   encodertime_R++;
    if(digitalRead(2) == 0x0)
   {
-    if(digitalRead(11) == 0x0)
+    if(digitalRead(13) == 0x0)
     {
       encoderVal_R--;
     }
@@ -48,7 +48,7 @@ void getEncoderR(void)
   }
   else
   {
-    if(digitalRead(12) == 0x0)
+    if(digitalRead(8) == 0x0)
     {
       encoderVal_R++;
     }
@@ -65,7 +65,7 @@ void getEncoderL(void)
   encodertime_L++;
    if(digitalRead(3) == 0x0)
   {
-    if(digitalRead(12) == 0x0)
+    if(digitalRead(8) == 0x0)
     {
       encoderVal_L--;
     }
@@ -76,7 +76,7 @@ void getEncoderL(void)
   }
   else
   {
-    if(digitalRead(12) == 0x0)
+    if(digitalRead(8) == 0x0)
     {
       encoderVal_L++;
     }
@@ -159,10 +159,10 @@ int pidControllerL(float targetLv,float currentLv)
 void control(void)
 {
   //测速 PID
-  Serial.print("encodertime_L:");
-  Serial.print(encodertime_L);
-  Serial.print("\tencodertime_R:");
-  Serial.println(encodertime_R);
+  //Serial.print("encodertime_L:");
+  //Serial.print(encodertime_L);
+  //Serial.print("\tencodertime_R:");
+  Serial.println(encoderVal_L);
 
   encodertime_L = 0;
   encodertime_R = 0;
@@ -219,9 +219,9 @@ void setup()
     pinMode(10,0x1);
 
     pinMode(2,0x0);
-    pinMode(11,0x0);
+    pinMode(13,0x0);
     pinMode(3,0x0);
-    pinMode(12,0x0);
+    pinMode(8,0x0);
 
     Serial.begin(9600);
 
