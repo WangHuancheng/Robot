@@ -94,7 +94,7 @@ int pidControllerR(float targetRv,float currentRv)
     float u;
     float output;
     float q0,q1,q2;
-    float k = 12;
+    float k = 20;
     float ti = 80;//积分时间
     float td = 5;//微分事件
     float ek = targetRv - currentRv;
@@ -238,8 +238,8 @@ void loop()
   //digitalWrite(INLA1,HIGH);
   //digitalWrite(INLA2,LOW);
   //Serial.print("left v: ");
-  //Serial.print(velocityL);
-  //Serial.print(",");
+  Serial.print(velocityL);
+  Serial.print(",");
   //Serial.print("right v");
   Serial.println(velocityR);
 
