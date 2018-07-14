@@ -1,23 +1,31 @@
 #include <Arduino.h>
-#line 1 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-#line 1 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+#line 1 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
+#line 1 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
 #include<MsTimer2.h>
-//编码器
+//左右电机码盘
 #define ENCODER_R1 3
 #define ENCODER_R2 4
 #define ENCODER_L1 2
 #define ENCODER_L2 5
-//驱动信号
+//左右电机PWM波以及电机正负极接入
 #define PWML_R 10 
 #define INL_R1 A2
 #define INL_R2 A1
 #define PWML_L 9
 #define INL_L1 A4
 #define INL_L2 A3
-#define PERIOD 12.0
-
-float targetRv = 20;
-float targetLv = 20;
+#define PERIOD 10
+//从前进方向的最左边开始排序红外传感器引脚
+int trac1 = A0; 
+int trac2 = A5; 
+int trac3 = 6; 
+int trac4 = 7; 
+int trac5 = 8; 
+int trac6 = 11; 
+int trac7 = 13; 
+const float originTargetV = 5;
+float targetRv = originTargetV;//右轮目标速度
+float targetLv = originTargetV;//左轮目标速度
 
 volatile long encoderVal_R = 0;
 volatile long encoderVal_L = 0;
@@ -39,21 +47,21 @@ float ekL2 = 0;//last last error
    
 
 
-#line 39 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+#line 47 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
 void getEncoderR(void);
-#line 67 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+#line 75 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
 void getEncoderL(void);
-#line 96 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-int pidControllerR(float targetRv,float currentRv);
-#line 132 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
-int pidControllerL(float targetLv,float currentLv);
-#line 164 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+#line 104 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
+int pidControllerR(float lTargetRv,float currentRv);
+#line 140 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
+int pidControllerL(float lTargetLv,float currentLv);
+#line 172 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
 void control(void);
-#line 216 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+#line 229 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
 void setup();
-#line 239 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+#line 262 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
 void loop();
-#line 39 "d:\\code\\Robot\\doubleWheelPID\\doubleWheelPID.ino"
+#line 47 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
 void getEncoderR(void)
 {
   //Serial.println("in func getEncoderR!");
@@ -111,7 +119,7 @@ void getEncoderL(void)
 }
 
 
-int pidControllerR(float targetRv,float currentRv)
+int pidControllerR(float lTargetRv,float currentRv)
 {
   
     float u;
@@ -120,7 +128,7 @@ int pidControllerR(float targetRv,float currentRv)
     float k  = 20;
     float ti = 80;//积分时间
     float td = 5;//微分事件
-    float ek = targetRv - currentRv;
+    float ek = lTargetRv - currentRv;
     //Serial.println(ek);
     
     q0 = k*(1 + PERIOD/ti + td/PERIOD);
@@ -147,15 +155,15 @@ int pidControllerR(float targetRv,float currentRv)
 
 }
 
-int pidControllerL(float targetLv,float currentLv)
+int pidControllerL(float lTargetLv,float currentLv)
 {
     float u;
     float output;
     float q0,q1,q2;
     float k  = 10;
     float ti = 80;//积分时间
-    float td = 5;//微分时间
-    float ek = targetLv - currentLv;
+    float td = 5;//微分事件
+    float ek = lTargetLv - currentLv;
 
     
     q0 = k*(1 + PERIOD/ti + td/PERIOD);
@@ -181,54 +189,59 @@ int pidControllerL(float targetLv,float currentLv)
 
 void control(void)
 {
-  //测速 PID
-  //Serial.print("encodertime_L:");
-  //Serial.print(encodertime_L);
-  //Serial.print("\tencodertime_R:");
-  //Serial.println(encoderVal_L);
-
-  encodertime_L = 0;
-  encodertime_R = 0;
+  int data[7];
+  float dVelocity = 0;
+  data[0] = !digitalRead(A0);
+  data[1] = !digitalRead(A5);
+  data[2] = !digitalRead(6);
+  data[3] = !digitalRead(7);
+  data[4] = !digitalRead(8);
+  data[5] = !digitalRead(11);
+  data[6] = !digitalRead(13);
 
   velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_R = 0;
-
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_L = 0;
+
+  dVelocity = 10*data[0] +8 *data[1] + 6*data[2] - 6*data[4] - 8*data[5] - 10*data[6];
+  targetRv += 0.5*dVelocity;
+  targetLv -= 0.5*dVelocity;
+
+  int dutyCycleR2 = pidControllerR(targetRv,velocityR);
+  int dutyCycleL2 = pidControllerL(targetLv,velocityL);
  
+  targetRv = originTargetV;
+  targetLv = originTargetV;
 
-  int dutyCycleR = pidControllerR(targetRv,velocityR);
-  int dutyCycleL = pidControllerL(targetLv,velocityL);
-  //Serial.print("dutyCycle:");
-  //Serial.println(dutyCycleR);
-
-
-  if(dutyCycleR > 0) //control Right wheel
+  //int dutyCycleL2 = dutyCycleL1 - D_value / 2;
+  //int dutyCycleR2 = dutyCycleR1 + D_value / 2;
+  if(dutyCycleR2 > 0) //control Right wheel
   {
       
       digitalWrite(INL_R1,LOW);
       digitalWrite(INL_R2,HIGH);
-      analogWrite(PWML_R,dutyCycleR);
+      analogWrite(PWML_R,dutyCycleR2);
   }
   else
   {
       digitalWrite(INL_R1,HIGH);
       digitalWrite(INL_R2,LOW);
-      analogWrite(PWML_R,abs(dutyCycleR));
+      analogWrite(PWML_R,abs(dutyCycleR2));
   }
 
-    if(dutyCycleL > 0) //control left wheel
+    if(dutyCycleL2 > 0) //control Right wheel
   {
       
       digitalWrite(INL_L1,HIGH);
       digitalWrite(INL_L2,LOW);
-      analogWrite(PWML_L,dutyCycleL);
+      analogWrite(PWML_L,dutyCycleL2);
   }
   else
   {
       digitalWrite(INL_L1,LOW);
       digitalWrite(INL_L2,HIGH);
-      analogWrite(PWML_L,abs(dutyCycleL));
+      analogWrite(PWML_L,abs(dutyCycleL2));
   }
 }
 void setup() 
@@ -246,25 +259,35 @@ void setup()
     pinMode(ENCODER_L1,INPUT);
     pinMode(ENCODER_L2,INPUT);
     
-    Serial.begin(9600);
+    
 
-    attachInterrupt(ENCODER_R1 - 2,getEncoderR,CHANGE);//
-    attachInterrupt(ENCODER_L1 - 2,getEncoderL,CHANGE);//中断通道0对应port 2，1对应port3
+    attachInterrupt(ENCODER_R1 - 2,getEncoderR,FALLING);
+    attachInterrupt(ENCODER_L1 - 2,getEncoderL,FALLING);
+      //寻迹模块D0引脚初始化
+    pinMode(trac1, INPUT);
+    pinMode(trac2, INPUT);
+    pinMode(trac3, INPUT);
+    pinMode(trac4, INPUT);
+    pinMode(trac5, INPUT);
+    pinMode(trac6, INPUT);
+    pinMode(trac7, INPUT);
     MsTimer2::set(PERIOD,control);
     MsTimer2::start();
+    Serial.begin(9600);
+    
 }
 
 void loop() 
 {
-  // put your main code here, to run repeatedly:
-  // analogWrite(PWML_B,255);
-  //digitalWrite(INLA1,HIGH);
-  //digitalWrite(INLA2,LOW);
-  //Serial.print("left v: ");
+
   Serial.print(velocityL);
   Serial.print(",");
-  //Serial.print("right v");
   Serial.println(velocityR);
-  
+  //Serial.println(encodertime_L);
+  //Serial.print("Right");
+  //Serial.println(encodertime_R);
+
 }
- 
+
+
+

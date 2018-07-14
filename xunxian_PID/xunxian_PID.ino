@@ -19,8 +19,8 @@ int trac3 = 6;
 int trac4 = 7; 
 int trac5 = 8; 
 int trac6 = 11; 
-int trac7 = 13;
-const float originTargetV = 20;//初始目标速度 
+int trac7 = 13; 
+const float originTargetV = 5;
 float targetRv = originTargetV;//右轮目标速度
 float targetLv = originTargetV;//左轮目标速度
 
@@ -101,16 +101,16 @@ void getEncoderL(void)
 }
 
 
-int pidControllerR(float targetRv,float currentRv)
+int pidControllerR(float lTargetRv,float currentRv)
 {
   
     float u;
     float output;
     float q0,q1,q2;
-    float k = 25;
-    float ti = 10;//积分时间
-    float td = 5;//微分时间
-    float ek = targetRv - currentRv;
+    float k  = 20;
+    float ti = 80;//积分时间
+    float td = 5;//微分事件
+    float ek = lTargetRv - currentRv;
     //Serial.println(ek);
     
     q0 = k*(1 + PERIOD/ti + td/PERIOD);
@@ -137,15 +137,15 @@ int pidControllerR(float targetRv,float currentRv)
 
 }
 
-int pidControllerL(float targetLv,float currentLv)
+int pidControllerL(float lTargetLv,float currentLv)
 {
     float u;
     float output;
     float q0,q1,q2;
-    float k = 13;
-    float ti = 10;//积分时间
-    float td = 50;//微分时间
-    float ek = targetLv - currentLv;
+    float k  = 10;
+    float ti = 80;//积分时间
+    float td = 5;//微分事件
+    float ek = lTargetLv - currentLv;
 
     
     q0 = k*(1 + PERIOD/ti + td/PERIOD);
@@ -172,14 +172,7 @@ int pidControllerL(float targetLv,float currentLv)
 void control(void)
 {
   int data[7];
-  float dV = 0;
-  
-  
-  velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
-  encoderVal_R = 0;
-  velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
-  encoderVal_L = 0;
-
+  float dVelocity = 0;
   data[0] = !digitalRead(A0);
   data[1] = !digitalRead(A5);
   data[2] = !digitalRead(6);
@@ -188,15 +181,20 @@ void control(void)
   data[5] = !digitalRead(11);
   data[6] = !digitalRead(13);
 
+  velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
+  encoderVal_R = 0;
+  velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
+  encoderVal_L = 0;
+
+  dVelocity = 10*data[0] +8 *data[1] + 6*data[2] - 6*data[4] - 8*data[5] - 10*data[6];
+  targetRv += 0.5*dVelocity;
+  targetLv -= 0.5*dVelocity;
+
+  int dutyCycleR2 = pidControllerR(targetRv,velocityR);
+  int dutyCycleL2 = pidControllerL(targetLv,velocityL);
  
-  dV = 0.5*data[0] + 0.4*data[1] + 0.3*data[2] - 0.3*data[4] - 0.4*data[5] - 0.5*data[6];
-  targetLv -= 0.5*dV;
-  targetRv += 0.5*dV;
-  int dutyCycleR1 = pidControllerR(targetRv,velocityR);
-  int dutyCycleL1 = pidControllerL(targetLv,velocityL);
   targetRv = originTargetV;
   targetLv = originTargetV;
-  //dV = 5*data[0] + 4*data[1] + 3*data[2] - 3*data[4] - 4*data[5] - 5*data[6];
 
   //int dutyCycleL2 = dutyCycleL1 - D_value / 2;
   //int dutyCycleR2 = dutyCycleR1 + D_value / 2;
@@ -205,13 +203,13 @@ void control(void)
       
       digitalWrite(INL_R1,LOW);
       digitalWrite(INL_R2,HIGH);
-      analogWrite(PWML_R,dutyCycleR1);
+      analogWrite(PWML_R,dutyCycleR2);
   }
   else
   {
       digitalWrite(INL_R1,HIGH);
       digitalWrite(INL_R2,LOW);
-      analogWrite(PWML_R,abs(dutyCycleR1));
+      analogWrite(PWML_R,abs(dutyCycleR2));
   }
 
     if(dutyCycleL2 > 0) //control Right wheel
@@ -219,13 +217,13 @@ void control(void)
       
       digitalWrite(INL_L1,HIGH);
       digitalWrite(INL_L2,LOW);
-      analogWrite(PWML_L,dutyCycleL1);
+      analogWrite(PWML_L,dutyCycleL2);
   }
   else
   {
       digitalWrite(INL_L1,LOW);
       digitalWrite(INL_L2,HIGH);
-      analogWrite(PWML_L,abs(dutyCycleL1));
+      analogWrite(PWML_L,abs(dutyCycleL2));
   }
 }
 void setup() 
@@ -245,8 +243,8 @@ void setup()
     
     
 
-    attachInterrupt(ENCODER_R1 - 2,getEncoderR,CHANGE);
-    attachInterrupt(ENCODER_L1 - 2,getEncoderL,CHANGE);
+    attachInterrupt(ENCODER_R1 - 2,getEncoderR,FALLING);
+    attachInterrupt(ENCODER_L1 - 2,getEncoderL,FALLING);
       //寻迹模块D0引脚初始化
     pinMode(trac1, INPUT);
     pinMode(trac2, INPUT);
@@ -265,9 +263,12 @@ void loop()
 {
 
   Serial.print(velocityL);
-  //Serial.print("\r\n");
   Serial.print(",");
   Serial.println(velocityR);
+  //Serial.println(encodertime_L);
+  //Serial.print("Right");
+  //Serial.println(encodertime_R);
+
 }
 
 

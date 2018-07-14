@@ -1,6 +1,6 @@
 {
     "port": "COM3",
     "board": "arduino:avr:uno",
-    "sketch": "doubleWheelPID\\doubleWheelPID.ino",
+    "sketch": "xunxian_PID/xunxian_PID.ino",
     "output": "build"
 }
