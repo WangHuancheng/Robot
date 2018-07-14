@@ -13,13 +13,13 @@
 #define INL_L2 A3
 #define PERIOD 10
 //从前进方向的最左边开始排序红外传感器引脚
-int trac1 = A0; 
-int trac2 = A5; 
-int trac3 = 6; 
-int trac4 = 7; 
-int trac5 = 8; 
-int trac6 = 11; 
-int trac7 = 13; 
+#define trac1  A0; 
+#define trac2  A5; 
+#define trac3  6; 
+#define trac4  7; 
+#define trac5  8; 
+#define trac6  11; 
+#define trac7  13; 
 const float originTargetV = 5;
 float targetRv = originTargetV;//右轮目标速度
 float targetLv = originTargetV;//左轮目标速度
