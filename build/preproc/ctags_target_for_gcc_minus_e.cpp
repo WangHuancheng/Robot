@@ -15,13 +15,10 @@
 
 
 //从前进方向的最左边开始排序红外传感器引脚
-int trac1 = A0;
-int trac2 = A5;
-int trac3 = 6;
-int trac4 = 7;
-int trac5 = 8;
-int trac6 = 11;
-int trac7 = 13;
+# 26 "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino"
+int rightAngelToLeft = 0;
+int rightAngelToRight = 0;
+int END = 0;
 const float originTargetV = 5;
 float targetRv = originTargetV;//右轮目标速度
 float targetLv = originTargetV;//左轮目标速度
@@ -173,22 +170,32 @@ int pidControllerL(float lTargetLv,float currentLv)
 
 void control(void)
 {
-  int data[7];
+  int data[9];
   float dVelocity = 0;
   data[0] = !digitalRead(A0);
   data[1] = !digitalRead(A5);
   data[2] = !digitalRead(6);
-  data[3] = !digitalRead(7);
+  //data[3] = !digitalRead();
   data[4] = !digitalRead(8);
   data[5] = !digitalRead(11);
   data[6] = !digitalRead(13);
+
+  data[7] = !digitalRead(12/*车体左侧的*/);
+  data[8] = !digitalRead(7);
+  if(data[1]&&data[2]&&data[4]&&data[5])
+  {
+    END = 1;
+    return;
+  }
+
+
 
   velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/10)/780;
   encoderVal_R = 0;
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/10)/780;
   encoderVal_L = 0;
 
-  dVelocity = 10*data[0] +8 *data[1] + 6*data[2] - 6*data[4] - 8*data[5] - 10*data[6];
+  dVelocity = 30*data[7]+30*data[0] +8 *data[1] + 6*data[2] - 6*data[4] - 8*data[5] - 30*data[6]-30*data[8];
   targetRv += 0.5*dVelocity;
   targetLv -= 0.5*dVelocity;
 
@@ -248,13 +255,15 @@ void setup()
     attachInterrupt(3 - 2,getEncoderR,2);
     attachInterrupt(2 - 2,getEncoderL,2);
       //寻迹模块D0引脚初始化
-    pinMode(trac1, 0x0);
-    pinMode(trac2, 0x0);
-    pinMode(trac3, 0x0);
-    pinMode(trac4, 0x0);
-    pinMode(trac5, 0x0);
-    pinMode(trac6, 0x0);
-    pinMode(trac7, 0x0);
+    pinMode(A0, 0x0);
+    pinMode(A5, 0x0);
+    pinMode(6, 0x0);
+    pinMode(7, 0x0);
+    pinMode(8, 0x0);
+    pinMode(11, 0x0);
+    pinMode(13, 0x0);
+    pinMode(12/*车体左侧的*/,0x0);
+    pinMode(7,0x0);
     MsTimer2::set(10,control);
     MsTimer2::start();
     Serial.begin(9600);
@@ -263,12 +272,46 @@ void setup()
 
 void loop()
 {
+  /*
+  if(END)
+  {
+    MsTimer2::stop();
+    digitalWrite(INL_R1,LOW);
+    digitalWrite(INL_R2,LOW);
+    digitalWrite(INL_L1,LOW);
+    digitalWrite(INL_L1,LOW);
+  }
+  */
 
-  Serial.print(velocityL);
-  Serial.print(",");
-  Serial.println(velocityR);
-  //Serial.println(encodertime_L);
-  //Serial.print("Right");
-  //Serial.println(encodertime_R);
+  /*
+  
+  if(rightAngelToRight)
+  {
+    MsTimer2::stop();
+    digitalWrite(INL_R1,LOW);
+    digitalWrite(INL_R2,LOW);
+    analogWrite(PWML_R,0);
 
+    digitalWrite(INL_L1,HIGH);
+    digitalWrite(INL_L2,LOW);
+    analogWrite(PWML_L,255);
+
+    delay(50);
+    MsTimer2::start();
+  }
+  if(rightAngelToLeft)
+  {
+    MsTimer2::stop();
+    digitalWrite(INL_L1,LOW);
+    digitalWrite(INL_L2,LOW);
+    analogWrite(PWML_L,0);
+
+    digitalWrite(INL_R1,LOW);
+    digitalWrite(INL_R2,HIGH);
+    analogWrite(PWML_R,255);
+
+    delay(50);
+    MsTimer2::start();
+  }
+  */
 }
