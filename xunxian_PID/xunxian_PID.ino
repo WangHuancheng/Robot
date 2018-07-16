@@ -11,7 +11,7 @@
 #define PWML_L 9
 #define INL_L1 A4
 #define INL_L2 A3
-#define PERIOD 10
+#define PERIOD 20
 //从前进方向的最左边开始排序红外传感器引脚
 #define trac1  A0 
 #define trac2  A5 
@@ -177,19 +177,19 @@ int pidControllerL(float lTargetLv,float currentLv)
 
 void control(void)
 {
-  int data[9];
+  int data[8];
   float dVelocity = 0;
-  data[0] = !digitalRead(trac1);
-  data[1] = !digitalRead(trac2);
-  data[2] = !digitalRead(trac3);
-  //data[3] = !digitalRead();
-  data[4] = !digitalRead(trac5);
-  data[5] = !digitalRead(trac6);
-  data[6] = !digitalRead(trac7);
+  data[1] = !digitalRead(trac1);
+  data[2] = !digitalRead(trac2);
+  data[3] = !digitalRead(trac3);
+  data[4] = !digitalRead(trac4);
+  data[5] = !digitalRead(trac5);
+  data[6] = !digitalRead(trac6);
+  data[7] = !digitalRead(trac7);
 
   //data[7] = !digitalRead(tracL);
   //data[8] = !digitalRead(tracR);
-  if(data[1]&&data[2]&&data[4]&&data[5])
+  if(data[2]&&data[3]&&data[4]&&data[6])
   {
     END =  1;
     return;
@@ -202,9 +202,22 @@ void control(void)
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_L = 0;
 
-  dVelocity = 24*data[0] +16 *data[1] + 8*data[2] - 8*data[4] - 16*data[5] - 24*data[6];
+  if(data[4]&&(data[1]||data[7]))
+  {
+    if(data[1])
+      dVelocity = 24;
+    if(data[7])
+      dVelocity = -24;
+  }
+
+  else
+  {
+    dVelocity = 24*data[1] +16 *data[2] + 8*data[3] - 8*data[5] - 16*data[6] - 24*data[7];
+  }
   targetRv += 0.5*dVelocity;
   targetLv -= 0.5*dVelocity;
+
+  
 
   int dutyCycleR2 = pidControllerR(targetRv,velocityR);
   int dutyCycleL2 = pidControllerL(targetLv,velocityL);
