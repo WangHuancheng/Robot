@@ -1,10 +1,10 @@
 {
   "builtInLibrariesFolders": "D:\\Arduino\\libraries",
-  "customBuildProperties": "build.path=d:\\code\\Robot\\build,build.warn_data_percentage=75,runtime.tools.avr-gcc.path=D:\\Arduino\\hardware\\tools\\avr,runtime.tools.avrdude.path=D:\\Arduino\\hardware\\tools\\avr,runtime.tools.arduinoOTA.path=D:\\Arduino\\hardware\\tools\\avr",
+  "customBuildProperties": "build.path=d:\\code\\Robot\\build,build.warn_data_percentage=75,runtime.tools.arduinoOTA.path=D:\\Arduino\\hardware\\tools\\avr,runtime.tools.avr-gcc.path=D:\\Arduino\\hardware\\tools\\avr,runtime.tools.avrdude.path=D:\\Arduino\\hardware\\tools\\avr",
   "fqbn": "arduino:avr:uno",
   "hardwareFolders": "D:\\Arduino\\hardware",
   "otherLibrariesFolders": "D:\\Arduino project\\libraries",
   "runtime.ide.version": "10805",
-  "sketchLocation": "d:\\code\\Robot\\xunxian_PID\\xunxian_PID.ino",
+  "sketchLocation": "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino",
   "toolsFolders": "D:\\Arduino\\tools-builder,D:\\Arduino\\hardware\\tools\\avr"
 }

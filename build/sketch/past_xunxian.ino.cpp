@@ -1,28 +1,29 @@
-# 1 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
-# 1 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
+#include <Arduino.h>
+#line 1 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
+#line 1 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
 
-# 3 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino" 2
+#include<MsTimer2.h>
 //左右电机码盘
-
-
-
-
+#define ENCODER_R1 3
+#define ENCODER_R2 4
+#define ENCODER_L1 2
+#define ENCODER_L2 5
 //左右电机PWM波以及电机正负极接入
-
-
-
-
-
-
-
+#define PWML_R 10 
+#define INL_R1 A2
+#define INL_R2 A1
+#define PWML_L 9
+#define INL_L1 A4
+#define INL_L2 A3
+#define PERIOD 10
 //从前进方向的最左边开始排序红外传感器引脚
-
-
-
-
-
-
-
+#define trac1  A0 
+#define trac2  A5 
+#define trac3  6 
+#define trac4  7 
+#define trac5  8 
+#define trac6  11 
+#define trac7  13 
 const float originTargetV = 5;
 volatile float targetRv = originTargetV;//右轮目标速度
 volatile float targetLv = originTargetV;//左轮目标速度
@@ -44,16 +45,31 @@ float ekR2 = 0;//last last error
 float ekL1 = 0;//last error
 float ekL2 = 0;//last last error
 
+   
 
 
-
+#line 48 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
+void getEncoderR(void);
+#line 76 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
+void getEncoderL(void);
+#line 105 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
+int pidControllerR(float lTargetRv,float currentRv);
+#line 141 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
+int pidControllerL(float lTargetLv,float currentLv);
+#line 173 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
+void control(void);
+#line 256 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
+void setup();
+#line 289 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
+void loop();
+#line 48 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
 void getEncoderR(void)
 {
   //Serial.println("in func getEncoderR!");
   encodertime_R++;
-   if(digitalRead(3) == 0x0)
+   if(digitalRead(ENCODER_R1) == LOW)
   {
-    if(digitalRead(4) == 0x0)
+    if(digitalRead(ENCODER_R2) == LOW)
     {
       encoderVal_R--;
     }
@@ -64,7 +80,7 @@ void getEncoderR(void)
   }
   else
   {
-    if(digitalRead(5) == 0x0)
+    if(digitalRead(ENCODER_L2) == LOW)
     {
       encoderVal_R++;
     }
@@ -79,9 +95,9 @@ void getEncoderL(void)
 {
   //Serial.println("L");
   encodertime_L++;
-   if(digitalRead(2) == 0x0)
+   if(digitalRead(ENCODER_L1) == LOW)
   {
-    if(digitalRead(5) == 0x0)
+    if(digitalRead(ENCODER_L2) == LOW)
     {
       encoderVal_L--;
     }
@@ -92,7 +108,7 @@ void getEncoderL(void)
   }
   else
   {
-    if(digitalRead(5) == 0x0)
+    if(digitalRead(ENCODER_L2) == LOW)
     {
       encoderVal_L++;
     }
@@ -106,33 +122,33 @@ void getEncoderL(void)
 
 int pidControllerR(float lTargetRv,float currentRv)
 {
-
+  
     float u;
     float output;
     float q0,q1,q2;
-    float k = 20;
+    float k  = 20;
     float ti = 80;//积分时间
     float td = 5;//微分事件
     float ek = lTargetRv - currentRv;
     //Serial.println(ek);
-
-    q0 = k*(1 + 10/ti + td/10);
-    q1 = -k*(1 + 2*td/10);
-    q2 = k*td/10;
-
+    
+    q0 = k*(1 + PERIOD/ti + td/PERIOD);
+    q1 = -k*(1 + 2*td/PERIOD);
+    q2 = k*td/PERIOD;
+      
 
     u = q0*ek + q1*ekR1 + q2*ekR2;
     output = ukR+u;
         //Serial.println(output);
 
 
-
+    
     if (output > 255)
         output = 255;
-
+    
     if (output < -255)
         output = -255;
-
+    
     ukR = output;
     ekR2 = ekR1;
     ekR1 = ek;
@@ -145,27 +161,27 @@ int pidControllerL(float lTargetLv,float currentLv)
     float u;
     float output;
     float q0,q1,q2;
-    float k = 10;
+    float k  = 10;
     float ti = 80;//积分时间
     float td = 5;//微分事件
     float ek = lTargetLv - currentLv;
 
-
-    q0 = k*(1 + 10/ti + td/10);
-    q1 = -k*(1 + 2*td/10);
-    q2 = k*td/10;
-
+    
+    q0 = k*(1 + PERIOD/ti + td/PERIOD);
+    q1 = -k*(1 + 2*td/PERIOD);
+    q2 = k*td/PERIOD;
+      
 
     u = q0*ek + q1*ekL1 + q2*ekL2;
     output = ukL+u;
      //Serial.println(output);
-
+       
     if (output > 255)
         output = 255;
-
+    
     if (output < -255)
         output = -255;
-
+    
     ukL = output;
     ekL2 = ekL1;
     ekL1 = ek;
@@ -184,9 +200,9 @@ void control(void)
   data[5] = !digitalRead(11);
   data[6] = !digitalRead(13);
 
-  velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/10)/780;
+  velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_R = 0;
-  velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/10)/780;
+  velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_L = 0;
 
   if(!(data[1]||data[2]||data[3]||data[4]||data[5]))
@@ -221,7 +237,7 @@ void control(void)
 
   int dutyCycleR2 = pidControllerR(targetRv,velocityR);
   int dutyCycleL2 = pidControllerL(targetLv,velocityL);
-
+ 
   targetRv = originTargetV;
   targetLv = originTargetV;
 
@@ -229,66 +245,66 @@ void control(void)
   //int dutyCycleR2 = dutyCycleR1 + D_value / 2;
   if(dutyCycleR2 > 0) //control Right wheel
   {
-
-      digitalWrite(A2,0x0);
-      digitalWrite(A1,0x1);
-      analogWrite(10,dutyCycleR2);
+      
+      digitalWrite(INL_R1,LOW);
+      digitalWrite(INL_R2,HIGH);
+      analogWrite(PWML_R,dutyCycleR2);
   }
   else
   {
-      digitalWrite(A2,0x1);
-      digitalWrite(A1,0x0);
-      analogWrite(10,((dutyCycleR2)>0?(dutyCycleR2):-(dutyCycleR2)));
+      digitalWrite(INL_R1,HIGH);
+      digitalWrite(INL_R2,LOW);
+      analogWrite(PWML_R,abs(dutyCycleR2));
   }
 
     if(dutyCycleL2 > 0) //control Right wheel
   {
-
-      digitalWrite(A4,0x1);
-      digitalWrite(A3,0x0);
-      analogWrite(9,dutyCycleL2);
+      
+      digitalWrite(INL_L1,HIGH);
+      digitalWrite(INL_L2,LOW);
+      analogWrite(PWML_L,dutyCycleL2);
   }
   else
   {
-      digitalWrite(A4,0x0);
-      digitalWrite(A3,0x1);
-      analogWrite(9,((dutyCycleL2)>0?(dutyCycleL2):-(dutyCycleL2)));
+      digitalWrite(INL_L1,LOW);
+      digitalWrite(INL_L2,HIGH);
+      analogWrite(PWML_L,abs(dutyCycleL2));
   }
 }
-void setup()
+void setup() 
 {
-    (*(volatile uint8_t *)(0x81)) = (*(volatile uint8_t *)(0x81)) & 248 | 1;
-    pinMode(A4,0x1);
-    pinMode(A3,0x1);
-    pinMode(9,0x1);
-    pinMode(A2,0x1);
-    pinMode(A1,0x1);
-    pinMode(10,0x1);
+    TCCR1B = TCCR1B & B11111000 | B00000001;
+    pinMode(INL_L1,OUTPUT);
+    pinMode(INL_L2,OUTPUT);
+    pinMode(PWML_L,OUTPUT);
+    pinMode(INL_R1,OUTPUT);
+    pinMode(INL_R2,OUTPUT);
+    pinMode(PWML_R,OUTPUT);
 
-    pinMode(3,0x0);
-    pinMode(4,0x0);
-    pinMode(2,0x0);
-    pinMode(5,0x0);
+    pinMode(ENCODER_R1,INPUT);
+    pinMode(ENCODER_R2,INPUT);
+    pinMode(ENCODER_L1,INPUT);
+    pinMode(ENCODER_L2,INPUT);
+    
+    
 
-
-
-    attachInterrupt(3 - 2,getEncoderR,2);
-    attachInterrupt(2 - 2,getEncoderL,2);
+    attachInterrupt(ENCODER_R1 - 2,getEncoderR,FALLING);
+    attachInterrupt(ENCODER_L1 - 2,getEncoderL,FALLING);
       //寻迹模块D0引脚初始化
-    pinMode(A0, 0x0);
-    pinMode(A5, 0x0);
-    pinMode(6, 0x0);
-    pinMode(7, 0x0);
-    pinMode(8, 0x0);
-    pinMode(11, 0x0);
-    pinMode(13, 0x0);
-    MsTimer2::set(10,control);
+    pinMode(trac1, INPUT);
+    pinMode(trac2, INPUT);
+    pinMode(trac3, INPUT);
+    pinMode(trac4, INPUT);
+    pinMode(trac5, INPUT);
+    pinMode(trac6, INPUT);
+    pinMode(trac7, INPUT);
+    MsTimer2::set(PERIOD,control);
     MsTimer2::start();
     Serial.begin(9600);
-
+    
 }
 
-void loop()
+void loop() 
 {
 
   Serial.print(velocityL);
@@ -299,3 +315,4 @@ void loop()
   //Serial.println(encodertime_R);
 
 }
+

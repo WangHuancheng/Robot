@@ -11,7 +11,7 @@
 #define PWML_L 9
 #define INL_L1 A4
 #define INL_L2 A3
-#define PERIOD 20
+#define PERIOD 10
 //从前进方向的最左边开始排序红外传感器引脚
 #define trac1  A0 
 #define trac2  A5 
@@ -26,7 +26,7 @@
 int rightAngelToLeft  = 0;
 int rightAngelToRight  = 0;
 int END = 0;  
-const float originTargetV = 5;
+const float originTargetV = 8;
 float targetRv = originTargetV;//右轮目标速度
 float targetLv = originTargetV;//左轮目标速度
 
@@ -205,14 +205,14 @@ void control(void)
   if(data[4]&&(data[1]||data[7]))
   {
     if(data[1])
-      dVelocity = 24;
-    if(data[7])
-      dVelocity = -24;
+      dVelocity = 8;
+    else if(data[7])
+      dVelocity = -8;
   }
 
   else
   {
-    dVelocity = 24*data[1] +16 *data[2] + 8*data[3] - 8*data[5] - 16*data[6] - 24*data[7];
+    dVelocity = 16*data[1] +10*data[2] + 8*data[3] - 8*data[5] - 10*data[6] - 16*data[7];
   }
   targetRv += 0.5*dVelocity;
   targetLv -= 0.5*dVelocity;
@@ -224,7 +224,7 @@ void control(void)
  
   targetRv = originTargetV;
   targetLv = originTargetV;
-  0
+  
   //int dutyCycleL2 = dutyCycleL1 - D_value / 2;
   //int dutyCycleR2 = dutyCycleR1 + D_value / 2;
   if(dutyCycleR2 > 0) //control Right wheel
@@ -241,7 +241,7 @@ void control(void)
       analogWrite(PWML_R,abs(dutyCycleR2));
   }
 
-    if(dutyCycleL2 > 0) //control Right wheel
+  if(dutyCycleL2 > 0) //control Right wheel
   {
       
       digitalWrite(INL_L1,HIGH);
