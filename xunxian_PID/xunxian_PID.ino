@@ -187,8 +187,8 @@ void control(void)
   data[5] = !digitalRead(trac6);
   data[6] = !digitalRead(trac7);
 
-  data[7] = !digitalRead(tracL);
-  data[8] = !digitalRead(tracR);
+  //data[7] = !digitalRead(tracL);
+  //data[8] = !digitalRead(tracR);
   if(data[1]&&data[2]&&data[4]&&data[5])
   {
     END =  1;
@@ -202,7 +202,7 @@ void control(void)
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_L = 0;
 
-  dVelocity = 0*data[7]+20*data[0] +8 *data[1] + 6*data[2] - 6*data[4] - 8*data[5] - 20*data[6]-0*data[8];
+  dVelocity = 24*data[0] +16 *data[1] + 8*data[2] - 8*data[4] - 16*data[5] - 24*data[6];
   targetRv += 0.5*dVelocity;
   targetLv -= 0.5*dVelocity;
 
@@ -269,8 +269,8 @@ void setup()
     pinMode(trac5, INPUT);
     pinMode(trac6, INPUT);
     pinMode(trac7, INPUT);
-    pinMode(tracL,INPUT);
-    pinMode(tracR,INPUT);
+    //pinMode(tracL,INPUT);
+    //pinMode(tracR,INPUT);
     MsTimer2::set(PERIOD,control);
     MsTimer2::start();
     Serial.begin(9600);
