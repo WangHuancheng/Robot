@@ -23,7 +23,7 @@
 
 
 
-const float originTargetV = 10;
+const float originTargetV = 5;
 volatile float targetRv = originTargetV;//右轮目标速度
 volatile float targetLv = originTargetV;//左轮目标速度
 
@@ -116,9 +116,9 @@ int pidControllerR(float lTargetRv,float currentRv)
     float ek = lTargetRv - currentRv;
     //Serial.println(ek);
 
-    q0 = k*(1 + 10/ti + td/10);
-    q1 = -k*(1 + 2*td/10);
-    q2 = k*td/10;
+    q0 = k*(1 + 20/ti + td/20);
+    q1 = -k*(1 + 2*td/20);
+    q2 = k*td/20;
 
 
     u = q0*ek + q1*ekR1 + q2*ekR2;
@@ -151,9 +151,9 @@ int pidControllerL(float lTargetLv,float currentLv)
     float ek = lTargetLv - currentLv;
 
 
-    q0 = k*(1 + 10/ti + td/10);
-    q1 = -k*(1 + 2*td/10);
-    q2 = k*td/10;
+    q0 = k*(1 + 20/ti + td/20);
+    q1 = -k*(1 + 2*td/20);
+    q2 = k*td/20;
 
 
     u = q0*ek + q1*ekL1 + q2*ekL2;
@@ -184,35 +184,35 @@ void control(void)
   data[5] = !digitalRead(11);
   data[6] = digitalRead(13);
 
-  velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/10)/780;
+  velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/20)/780;
   encoderVal_R = 0;
-  velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/10)/780;
+  velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/20)/780;
   encoderVal_L = 0;
 
-  if(!(data[1]||data[2]||data[3]||data[4]||data[5]))
+  if(!(data[0]||data[1]||data[2]||data[3]||data[4]||data[5]||data[6]))
   {
-        targetRv = -5;
-        targetLv = -5;
+        targetRv = -4;
+        targetLv = -4;
   }
 
-  else if(data[3]&&(data[1]||data[2]||data[4]||data[5]))
+  else if(data[3]&&(data[0]||data[1]||data[2]||data[4]||data[5]||data[6]))
   {
-    if(data[1]||data[2])
+    if(data[0]||data[1]||data[2])
     {
         //dVelocity = 70;
         targetRv = 60;
-        targetLv = -60;
+        targetLv = 0;
     }
-    else if (data[5]||data[6])
+    else if (data[4]||data[5]||data[6])
     {
         //dVelocity = -70;
-        targetRv = -60;
+        targetRv = 0;
         targetLv = 60;
     }
   }
   else
   {
-    dVelocity = 15*data[0] +10*data[1] + 7*data[2] - 7*data[4] - 10*data[5] - 15*data[6];
+    dVelocity = 10*data[0] +8*data[1] + 6*data[2] - 6*data[4] - 8*data[5] - 10*data[6];
     targetRv += 0.5*dVelocity;
     targetLv -= 0.5*dVelocity;
   }
@@ -282,7 +282,7 @@ void setup()
     pinMode(8, 0x0);
     pinMode(11, 0x0);
     pinMode(13, 0x0);
-    MsTimer2::set(10,control);
+    MsTimer2::set(20,control);
     MsTimer2::start();
     Serial.begin(9600);
 

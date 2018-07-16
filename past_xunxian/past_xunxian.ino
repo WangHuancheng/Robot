@@ -12,7 +12,7 @@
 #define PWML_L 9
 #define INL_L1 A4
 #define INL_L2 A3
-#define PERIOD 10
+#define PERIOD 20
 //从前进方向的最左边开始排序红外传感器引脚
 #define trac1  A0 
 #define trac2  A5 
@@ -21,7 +21,7 @@
 #define trac5  8 
 #define trac6  11 
 #define trac7  13 
-const float originTargetV = 10;
+const float originTargetV = 5;
 volatile float targetRv = originTargetV;//右轮目标速度
 volatile float targetLv = originTargetV;//左轮目标速度
 
@@ -187,30 +187,30 @@ void control(void)
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_L = 0;
 
-  if(!(data[1]||data[2]||data[3]||data[4]||data[5]))
+  if(!(data[0]||data[1]||data[2]||data[3]||data[4]||data[5]||data[6]))
   {
-        targetRv = -5;
-        targetLv = -5;
+        targetRv = -1.5;
+        targetLv = -105;
   }
 
-  else if(data[3]&&(data[1]||data[2]||data[4]||data[5]))
+  else if(data[3]&&(data[0]||data[1]||data[2]||data[4]||data[5]||data[6]))
   {
-    if(data[1]||data[2])
+    if(data[0]||data[1]||data[2])
     {
         //dVelocity = 70;
         targetRv = 60;
-        targetLv = -60;
+        targetLv = 0;
     }
-    else if (data[5]||data[6])
+    else if (data[4]||data[5]||data[6])
     {
         //dVelocity = -70;
-        targetRv = -60;
+        targetRv = 0;
         targetLv = 60;
     }
   }
   else
   {
-    dVelocity = 15*data[0] +10*data[1] + 7*data[2] - 7*data[4] - 10*data[5] - 15*data[6];
+    dVelocity = 10*data[0] +8*data[1] + 6*data[2] - 6*data[4] - 8*data[5] - 10*data[6];
     targetRv += 0.5*dVelocity;
     targetLv -= 0.5*dVelocity;
   }
