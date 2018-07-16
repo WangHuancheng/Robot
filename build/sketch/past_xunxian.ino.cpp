@@ -24,7 +24,7 @@
 #define trac5  8 
 #define trac6  11 
 #define trac7  13 
-const float originTargetV = 5;
+const float originTargetV = 10;
 volatile float targetRv = originTargetV;//右轮目标速度
 volatile float targetLv = originTargetV;//左轮目标速度
 
@@ -192,13 +192,13 @@ void control(void)
 {
   int data[7];
   float dVelocity = 0;
-  data[0] = !digitalRead(A0);
+  data[0] = digitalRead(A0);
   data[1] = !digitalRead(A5);
   data[2] = !digitalRead(6);
   data[3] = !digitalRead(7);
   data[4] = !digitalRead(8);
   data[5] = !digitalRead(11);
-  data[6] = !digitalRead(13);
+  data[6] = digitalRead(13);
 
   velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_R = 0;
@@ -207,28 +207,28 @@ void control(void)
 
   if(!(data[1]||data[2]||data[3]||data[4]||data[5]))
   {
-        targetRv = -10;
-        targetLv = -10;
+        targetRv = -5;
+        targetLv = -5;
   }
 
-  else if(data[3]&&(data[1]||data[5]))
+  else if(data[3]&&(data[1]||data[2]||data[4]||data[5]))
   {
-    if(data[1])
+    if(data[1]||data[2])
     {
         //dVelocity = 70;
-        targetRv = 30;
-        targetLv = -30;
+        targetRv = 60;
+        targetLv = -60;
     }
-    else if (data[5])
+    else if (data[5]||data[6])
     {
         //dVelocity = -70;
-        targetRv = -35;
-        targetLv = 35;
+        targetRv = -60;
+        targetLv = 60;
     }
   }
   else
   {
-    dVelocity = 0*data[0] +10* data[1] + 6*data[2] - 6*data[4] - 10*data[5] - 0*data[6];
+    dVelocity = 15*data[0] +10*data[1] + 7*data[2] - 7*data[4] - 10*data[5] - 15*data[6];
     targetRv += 0.5*dVelocity;
     targetLv -= 0.5*dVelocity;
   }

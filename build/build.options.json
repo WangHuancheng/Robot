@@ -1,6 +1,6 @@
 {
   "builtInLibrariesFolders": "D:\\Arduino\\libraries",
-  "customBuildProperties": "build.path=d:\\code\\Robot\\build,build.warn_data_percentage=75,runtime.tools.arduinoOTA.path=D:\\Arduino\\hardware\\tools\\avr,runtime.tools.avr-gcc.path=D:\\Arduino\\hardware\\tools\\avr,runtime.tools.avrdude.path=D:\\Arduino\\hardware\\tools\\avr",
+  "customBuildProperties": "build.path=d:\\code\\Robot\\build,build.warn_data_percentage=75,runtime.tools.arduinoOTA.path=D:\\Arduino\\hardware\\tools\\avr,runtime.tools.avrdude.path=D:\\Arduino\\hardware\\tools\\avr,runtime.tools.avr-gcc.path=D:\\Arduino\\hardware\\tools\\avr",
   "fqbn": "arduino:avr:uno",
   "hardwareFolders": "D:\\Arduino\\hardware",
   "otherLibrariesFolders": "D:\\Arduino project\\libraries",
