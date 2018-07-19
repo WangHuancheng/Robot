@@ -16,7 +16,7 @@
 
 //从前进方向的最左边开始排序红外传感器引脚
 # 28 "d:\\code\\Robot\\xunxian_PID_4\\xunxian_PID_4.ino"
-const float originTargetV = 30;
+const float originTargetV = 60;
 float targetRv = originTargetV;//右轮目标速度
 float targetLv = originTargetV;//左轮目标速度
 
@@ -172,9 +172,9 @@ int pidControllerL(float lTargetLv,float currentLv)
 }
 float pidRoute()
 {
-  float Kp_Route = 7 ;
-  //float Ki_Route = 0;
-  float Kd_Route = 3;
+  float Kp_Route = 17;
+  float Ki_Route = 1;
+  float Kd_Route = 2;
   float output;
   float u2= 4 - midVal;
   float d = (u2 - error_midValLast1) * Kp_Route

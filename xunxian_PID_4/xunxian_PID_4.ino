@@ -25,7 +25,7 @@
 #define tracR  7 
 
 
-const float originTargetV = 30;
+const float originTargetV = 60;
 float targetRv = originTargetV;//右轮目标速度
 float targetLv = originTargetV;//左轮目标速度
 
@@ -181,9 +181,9 @@ int pidControllerL(float lTargetLv,float currentLv)
 }
 float pidRoute()
 {
-  float Kp_Route = 7 ;
-  //float Ki_Route = 0;
-  float Kd_Route = 3;
+  float Kp_Route = 17;
+  float Ki_Route = 1;
+  float Kd_Route = 0;
   float output;
   float u2=  MID - midVal;
   float d = (u2 - error_midValLast1) * Kp_Route  

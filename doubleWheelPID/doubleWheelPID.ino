@@ -13,8 +13,8 @@
 #define INL_L2 A3
 #define PERIOD 12.0
 
-float targetRv = 35;
-float targetLv = 35;
+float targetRv = 44;
+float targetLv = 44;
 
 volatile long encoderVal_R = 0;
 volatile long encoderVal_L = 0;
@@ -100,8 +100,8 @@ int pidControllerR(float targetRv,float currentRv)
     float output;
     float q0,q1,q2;
     float k  = 25;
-    float ti = 100;//积分时间
-    float td = 5;//微分事件
+    float ti = 80;//积分时间
+    float td = 0;//微分事件
     float ek = targetRv - currentRv;
     //Serial.println(ek);
     
@@ -134,9 +134,9 @@ int pidControllerL(float targetLv,float currentLv)
     float u;
     float output;
     float q0,q1,q2;
-    float k  = 14;
-    float ti = 100;//积分时间
-    float td = 5;//微分时间
+    float k  = 13;
+    float ti = 80;//积分时间
+    float td = 0;//微分时间
     float ek = targetLv - currentLv;
 
     
