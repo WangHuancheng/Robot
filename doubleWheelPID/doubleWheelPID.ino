@@ -13,8 +13,8 @@
 #define INL_L2 A3
 #define PERIOD 12.0
 
-float targetRv = 20;
-float targetLv = 20;
+float targetRv = 35;
+float targetLv = 35;
 
 volatile long encoderVal_R = 0;
 volatile long encoderVal_L = 0;
@@ -99,8 +99,8 @@ int pidControllerR(float targetRv,float currentRv)
     float u;
     float output;
     float q0,q1,q2;
-    float k  = 20;
-    float ti = 80;//积分时间
+    float k  = 25;
+    float ti = 100;//积分时间
     float td = 5;//微分事件
     float ek = targetRv - currentRv;
     //Serial.println(ek);
@@ -134,8 +134,8 @@ int pidControllerL(float targetLv,float currentLv)
     float u;
     float output;
     float q0,q1,q2;
-    float k  = 10;
-    float ti = 80;//积分时间
+    float k  = 14;
+    float ti = 100;//积分时间
     float td = 5;//微分时间
     float ek = targetLv - currentLv;
 
@@ -230,8 +230,8 @@ void setup()
     
     Serial.begin(9600);
 
-    attachInterrupt(ENCODER_R1 - 2,getEncoderR,CHANGE);//
-    attachInterrupt(ENCODER_L1 - 2,getEncoderL,CHANGE);//中断通道0对应port 2，1对应port3
+    attachInterrupt(ENCODER_R1 - 2,getEncoderR,FALLING);//
+    attachInterrupt(ENCODER_L1 - 2,getEncoderL,FALLING);//中断通道0对应port 2，1对应port3
     MsTimer2::set(PERIOD,control);
     MsTimer2::start();
 }

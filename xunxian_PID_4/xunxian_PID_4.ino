@@ -1,7 +1,3 @@
-#include <Arduino.h>
-#line 1 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
-#line 1 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
-
 #include<MsTimer2.h>
 //左右电机码盘
 #define ENCODER_R1 3
@@ -15,26 +11,37 @@
 #define PWML_L 9
 #define INL_L1 A4
 #define INL_L2 A3
-#define PERIOD 20
+#define PERIOD 10
 //从前进方向的最左边开始排序红外传感器引脚
-#define trac1  A0 
+#define trac1  A0
 #define trac2  A5 
 #define trac3  6 
-#define trac4  7 
+#define trac4  7
+ 
 #define trac5  8 
 #define trac6  11 
 #define trac7  13 
-const float originTargetV = 5;
-volatile float targetRv = originTargetV;//右轮目标速度
-volatile float targetLv = originTargetV;//左轮目标速度
+#define tracL  12//车体左侧的
+#define tracR  7 
+
+
+const float originTargetV = 30;
+float targetRv = originTargetV;//右轮目标速度
+float targetLv = originTargetV;//左轮目标速度
 
 volatile long encoderVal_R = 0;
 volatile long encoderVal_L = 0;
 
 volatile int encodertime_L = 0;
 volatile int encodertime_R = 0;
+#define MID 4
+float error_midValLast2 = 0;
+float error_midValLast1 = 0;
+float dLast = 0;
+float midVal;
 
-
+int _redVal[7];
+float midLast = 4;
 volatile float velocityR;
 volatile float velocityL;
 float ukR = 0;
@@ -44,25 +51,10 @@ float ekR1 = 0;//last error
 float ekR2 = 0;//last last error
 float ekL1 = 0;//last error
 float ekL2 = 0;//last last error
-
+int data[7];
    
 
 
-#line 48 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
-void getEncoderR(void);
-#line 76 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
-void getEncoderL(void);
-#line 105 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
-int pidControllerR(float lTargetRv,float currentRv);
-#line 141 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
-int pidControllerL(float lTargetLv,float currentLv);
-#line 173 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
-void control(void);
-#line 256 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
-void setup();
-#line 289 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
-void loop();
-#line 48 "d:\\code\\Robot\\past_xunxian\\past_xunxian.ino"
 void getEncoderR(void)
 {
   //Serial.println("in func getEncoderR!");
@@ -126,8 +118,8 @@ int pidControllerR(float lTargetRv,float currentRv)
     float u;
     float output;
     float q0,q1,q2;
-    float k  = 20;
-    float ti = 80;//积分时间
+    float k  = 25;
+    float ti = 100;//积分时间
     float td = 5;//微分事件
     float ek = lTargetRv - currentRv;
     //Serial.println(ek);
@@ -161,8 +153,8 @@ int pidControllerL(float lTargetLv,float currentLv)
     float u;
     float output;
     float q0,q1,q2;
-    float k  = 10;
-    float ti = 80;//积分时间
+    float k  = 14;
+    float ti = 100;//积分时间
     float td = 5;//微分事件
     float ek = lTargetLv - currentLv;
 
@@ -187,53 +179,35 @@ int pidControllerL(float lTargetLv,float currentLv)
     ekL1 = ek;
     return (int)output;
 }
-
+float pidRoute()
+{
+  float Kp_Route = 7 ;
+  //float Ki_Route = 0;
+  float Kd_Route = 3;
+  float output;
+  float u2=  MID - midVal;
+  float d = (u2 - error_midValLast1) * Kp_Route  
+  + (u2- 2*error_midValLast1 +error_midValLast2) * Kd_Route; //PD
+  
+  error_midValLast2 = error_midValLast1;
+  error_midValLast1 = u2;
+  output = d + dLast;
+  dLast = output;
+  return output;
+}
 void control(void)
 {
-  int data[7];
-  float dVelocity = 0;
-  data[0] = digitalRead(A0);
-  data[1] = !digitalRead(A5);
-  data[2] = !digitalRead(6);
-  data[3] = !digitalRead(7);
-  data[4] = !digitalRead(8);
-  data[5] = !digitalRead(11);
-  data[6] = digitalRead(13);
-
   velocityR = (encoderVal_R*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_R = 0;
   velocityL = (encoderVal_L*2.0)*3.1415*2.0*(1000/PERIOD)/780;
   encoderVal_L = 0;
 
-  if(!(data[0]||data[1]||data[2]||data[3]||data[4]||data[5]||data[6]))
-  {
-        targetRv = -4;
-        targetLv = -4;
-  }
-
-  else if(data[3]&&(data[0]||data[1]||data[2]||data[4]||data[5]||data[6]))
-  {
-    if(data[0]||data[1]||data[2])
-    {
-        //dVelocity = 70;
-        targetRv = 60;
-        targetLv = 0;
-    }
-    else if (data[4]||data[5]||data[6])
-    {
-        //dVelocity = -70;
-        targetRv = 0;
-        targetLv = 60;
-    }
-  }
-  else
-  {
-    dVelocity = 10*data[0] +8*data[1] + 6*data[2] - 6*data[4] - 8*data[5] - 10*data[6];
-    targetRv += 0.5*dVelocity;
-    targetLv -= 0.5*dVelocity;
-  }
-  //dVelocity = 30*data[0] +10* data[1] + 6*data[2] - 6*data[4] - 10*data[5] - 30*data[6];
-
+  float d = pidRoute();
+  //  dVelocity = 10*data[0] +8*data[1] + 6*data[2]
+  //   - 6*data[4] - 8*data[5] - 10*data[6];
+  targetRv += d;
+  
+  targetLv -= d;
 
   int dutyCycleR2 = pidControllerR(targetRv,velocityR);
   int dutyCycleL2 = pidControllerL(targetLv,velocityL);
@@ -298,21 +272,56 @@ void setup()
     pinMode(trac5, INPUT);
     pinMode(trac6, INPUT);
     pinMode(trac7, INPUT);
+
     MsTimer2::set(PERIOD,control);
     MsTimer2::start();
     Serial.begin(9600);
     
 }
-
-void loop() 
+void readInfrared()
 {
 
+  _redVal[0] = !digitalRead(trac1);
+  _redVal[1] = digitalRead(trac2);
+  _redVal[2] = digitalRead(trac3);
+  _redVal[3] = digitalRead(trac4);
+  _redVal[4] = digitalRead(trac5);
+  _redVal[5] = digitalRead(trac6);
+  _redVal[6] = !digitalRead(trac7);
+}
+float infraredFindMidVal()
+{
+  float mid;
+  int sum = 0;
+  int n = 0;
+  readInfrared();
+  for (int i = 0; i < 7; i++)
+  {
+    if (_redVal[i] == 0)
+    {
+      sum += (i + 1);
+      n++;
+    }
+  }
+  if (sum == 0)
+    mid = midLast;
+  else
+    mid = (float)sum / n;
+  midLast = mid;
+  return mid;
+}
+void loop() 
+{
+  midVal = infraredFindMidVal();
+  //Serial.println(midVal);
+   //readVault();
+  //delay(5);
   Serial.print(velocityL);
   Serial.print(",");
   Serial.println(velocityR);
-  //Serial.println(encodertime_L);
-  //Serial.print("Right");
-  //Serial.println(encodertime_R);
-
+      
 }
+    
+    
+
 

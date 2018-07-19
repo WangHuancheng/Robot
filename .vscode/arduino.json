@@ -1,6 +1,6 @@
 {
     "port": "COM3",
     "board": "arduino:avr:uno",
-    "sketch": "past_xunxian\\past_xunxian.ino",
+    "sketch": "xunxian_PID_4\\xunxian_PID_4.ino",
     "output": "build"
 }
